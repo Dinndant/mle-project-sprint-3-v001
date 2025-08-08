@@ -1,0 +1,21 @@
+FROM python:3.11-slim
+
+# Set build-time variables (author and app port)
+ARG AUTHOR
+LABEL author=${AUTHOR}
+
+# Install dependencies first (caching optimization)
+COPY requirements.txt .
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+# Copy the entire services directory (including ml_service and models)
+COPY . .
+
+# Set working directory to the service root
+WORKDIR .
+
+# Expose the app port (must match the one used in CMD)
+EXPOSE ${APP_PORT}
+
+# Run the FastAPI app (adjust path if needed)
+CMD uvicorn ml_service.app:app --reload --port ${APP_PORT} --host 0.0.0.0

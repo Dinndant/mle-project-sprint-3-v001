@@ -1,0 +1,38 @@
+services:
+  price-service:  
+    #используем файл с переменными среды
+    env_file:
+      - .env
+    # собираем образ с помощью Dockerfile
+    build:
+      dockerfile: Dockerfile_ml_service
+    # перенаправялем порты
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+    
+    hostname: price_service_app
+  
+  # добавьте описание сервиса Prometheus:
+  prometheus:
+    image: prom/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - 9089:9090
+    #используем файл с переменными среды
+    env_file:
+      - .env
+    volumes:
+      - "./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
+    hostname: prometheus
+
+  grafana:
+    image: grafana/grafana
+    env_file:
+    - ./.env
+    ports:
+    - 3002:3000
+    environment:
+    - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
+    - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASS}
+   
